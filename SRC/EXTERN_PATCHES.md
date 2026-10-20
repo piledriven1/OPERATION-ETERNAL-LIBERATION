@@ -227,53 +227,6 @@ them after releasing it, and the timeout monitor hands the disconnect to the
 signaling thread rather than reaching into that lock itself, so neither side
 holds one domain's lock while taking the other's.
 
-## RPCS3: `np-freeze-tracer.patch`
-
-Adds `rpcs3/Emu/NP/freeze_tracer.h` and probes in `signaling_handler.cpp`,
-`lv2_socket_p2ps.cpp`, `sceNp.cpp`, `sceNp2.cpp`, and `cellSysutil.cpp`.
-
-Pure-observation diagnostics for the lobby-disconnect freeze. Every probe is a single
-relaxed atomic counter bump; nothing changes control flow, locking, timing, or return
-values, so the build stays functionally identical to the one without it. It exists to
-make a recurrence self-describing from the log instead of needing a live repro.
-
-What it records:
-
-- Two heartbeats: one bumped at the top of the signaling handler loop, one in
-  `cellSysutilCheckCallback` (the game's callback pump). The P2PS `tcp_timeout_monitor`,
-  which never takes the signaling state lock, reads both and logs an edge-triggered
-  `[freeze-tracer]` warning when either stops advancing for a few seconds, plus a second
-  warning when it resumes. A stalled pump with a live signaling thread and a stalled
-  signaling thread point at different causes.
-- Enqueue/deliver counters for the Dead and Established signaling callbacks (enqueued
-  under the state lock, delivered after it is released). When signaling stalls, the
-  monitor logs the four counters once; enqueued greater than delivered indicates the
-  callback pump is wedged rather than the signaling thread.
-- Per-second call-rate logging for the three connection-info / room-member getters, so a
-  title busy-polling a peer we report as gone is distinguishable from a blocked wait.
-
-All logging is rate-limited or edge-triggered, so a healthy session stays quiet. The
-counters live in one header included by each touched translation unit.
-
-## RPCS3: `lv2-cond-tracer.patch`
-
-Adds cond-variable tracing in `rpcs3/Emu/Cell/lv2/sys_cond.cpp`, a trigger in
-`lv2_socket_p2ps.cpp`, and an arming flag in `rpcs3/Emu/NP/freeze_tracer.h`.
-
-A follow-on to `np-freeze-tracer.patch`, kept separate so it can be dropped on its own.
-Also pure observation, and inert in normal play: it does nothing until the freeze-tracer
-stale-watcher detects the signaling thread has stopped making progress.
-
-When that happens the P2PS monitor arms a flag and takes a read-only snapshot of every PPU
-thread parked on an lv2 condition variable (walked through `idm` under its own read lock),
-logging each one with its cond id and game instruction address; it repeats the snapshot
-about ten seconds later, so a thread sitting on the same cond at the same address in both
-snapshots is genuinely stuck rather than mid-handoff. While the flag is armed, the three
-`sys_cond` signal syscalls log the cond id, the signaling thread, and its instruction
-address, which records who would have released each wait. The flag is cleared when progress
-resumes. With the flag clear the only cost in those syscalls is one relaxed atomic-flag
-read, so a healthy session is unaffected.
-
 ## RPCS3: `fps-unlock.patch`
 
 Modifies `rpcs3/Emu/Cell/PPUModule.cpp`, `rpcs3/Emu/Cell/PPUThread.cpp`,

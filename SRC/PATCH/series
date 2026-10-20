@@ -8,8 +8,6 @@ RPCS3/tss-support.patch                    # TSS/TUS serving, world-list padding
 RPCS3/invite-attachment-fix.patch          # pack the matching2 serverId into the invitation's room id so invites resolve the server
 RPCS3/np-localnetinfo-byteorder-fix.patch  # NP LocalNetInfo byte-order fix
 RPCS3/p2ps-disconnect-fix.patch            # consolidated P2PS disconnect overhaul
-RPCS3/np-freeze-tracer.patch               # freeze-tracer diagnostics
-RPCS3/lv2-cond-tracer.patch                # lv2 cond-tracer diagnostics
 RPCS3/fps-unlock.patch                     # frame-rate independence: cutscenes, movies, thrust and sink
 RPCS3/rpcn-disconnect-fix.patch            # RPCN disconnect handling
 RPCS3/matchrate-range-fix.patch            # widen the room's advertised matching rate window
