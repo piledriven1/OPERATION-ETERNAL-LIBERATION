@@ -29,10 +29,10 @@ permissions:
 
 env:
   # Mirror of rpcs3's Windows_Build env. Bump together with upstream.
-  QT_VER:         '6.11.2'
+  QT_VER:         '6.12.0'
   QT_VER_MAIN:    '6'
   QT_VER_MSVC:    'msvc2022'
-  QT_DATE:        '202608131017'
+  QT_DATE:        '202609280346'
   LLVM_VER:       '22.1.8'
   VULKAN_VER:     '1.4.341.1'
   VULKAN_SDK_SHA: 'bcf2d75aa9556889ab974858666e20b3655b6055a0db704ccb47279ff33b5bfe'
@@ -109,7 +109,7 @@ jobs:
       # it from upstream's own .github/workflows/rpcs3.yml at that commit.
       - name: Build rpcs3 in upstream's CI container
         run: |
-          DOCKER_IMG="rpcs3/rpcs3-ci-jammy:2.1"
+          DOCKER_IMG="rpcs3/rpcs3-ci-jammy:2.2"
           docker pull --quiet "$DOCKER_IMG"
           mkdir -p "$BUILD_ARTIFACTSTAGINGDIRECTORY"
           docker run --rm \

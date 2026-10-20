@@ -1,4 +1,4 @@
-From da043c652323891481503f648711a60483d70c53 Mon Sep 17 00:00:00 2001
+From c01f4f540e245b16890bbf262dba2c184e232b11 Mon Sep 17 00:00:00 2001
 From: Killer0byte <7703985+Killer0byte@users.noreply.github.com>
 Date: Sun, 10 May 2026 11:55:18 +0200
 Subject: [PATCH] Add TSS HTTP server and game-specific server entries
@@ -6,7 +6,7 @@ Subject: [PATCH] Add TSS HTTP server and game-specific server entries
 ---
  servers.cfg              |   8 ++-
  src/server.rs            |   2 +
- src/server/tss_server.rs | 128 +++++++++++++++++++++++++++++++++++++++++++++++
+ src/server/tss_server.rs | 128 +++++++++++++++++++++++++++++++++++++++
  3 files changed, 137 insertions(+), 1 deletion(-)
  create mode 100644 src/server/tss_server.rs
 
@@ -29,10 +29,10 @@ index 07b3428..4e2b5ef 100644
 +NPWR04428_00|5|65537|
 \ No newline at end of file
 diff --git a/src/server.rs b/src/server.rs
-index a4aefe1..b38c8b2 100644
+index e3d7e27..64842b1 100644
 --- a/src/server.rs
 +++ b/src/server.rs
-@@ -31,6 +31,7 @@ mod score_cache;
+@@ -35,6 +35,7 @@ mod score_cache;
  use score_cache::ScoresCache;
  mod cleaners;
  mod stat_server;
@@ -40,8 +40,8 @@ index a4aefe1..b38c8b2 100644
  mod udp_server;
  mod utils;
  use crate::Config;
-@@ -188,6 +189,7 @@ impl Server {
- 			install_signal_handlers(&term_watch);
+@@ -236,6 +237,7 @@ impl Server {
+ 			install_cert_reload_handler(cert_resolver.clone());
  
  			self.start_udp_server(term_watch.clone()).await?;
 +			self.start_tss_server(term_watch.clone()).await?;
@@ -182,6 +182,3 @@ index 0000000..7c1b276
 +		Err(_) => Ok(Response::builder().status(StatusCode::NOT_FOUND).body(TssBody::empty()).unwrap()),
 +	}
 +}
--- 
-2.30.2
-

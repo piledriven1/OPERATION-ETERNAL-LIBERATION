@@ -1,8 +1,8 @@
 diff --git a/rpcs3/Emu/Cell/lv2/sys_cond.cpp b/rpcs3/Emu/Cell/lv2/sys_cond.cpp
-index f66146ae0..441f50353 100644
+index 1cc28a3b5..9c49184c0 100644
 --- a/rpcs3/Emu/Cell/lv2/sys_cond.cpp
 +++ b/rpcs3/Emu/Cell/lv2/sys_cond.cpp
-@@ -9,6 +9,7 @@
+@@ -10,6 +10,7 @@
  
  #include "sys_cond.h"
  
@@ -10,7 +10,7 @@ index f66146ae0..441f50353 100644
  #include "util/asm.hpp"
  
  LOG_CHANNEL(sys_cond);
-@@ -161,6 +162,8 @@ error_code sys_cond_signal(ppu_thread& ppu, u32 cond_id)
+@@ -162,6 +163,8 @@ error_code sys_cond_signal(ppu_thread& ppu, u32 cond_id)
  	ppu.state += cpu_flag::wait;
  
  	sys_cond.trace("sys_cond_signal(cond_id=0x%x)", cond_id);
@@ -19,7 +19,7 @@ index f66146ae0..441f50353 100644
  
  	while (true)
  	{
-@@ -233,6 +236,8 @@ error_code sys_cond_signal_all(ppu_thread& ppu, u32 cond_id)
+@@ -234,6 +237,8 @@ error_code sys_cond_signal_all(ppu_thread& ppu, u32 cond_id)
  	ppu.state += cpu_flag::wait;
  
  	sys_cond.trace("sys_cond_signal_all(cond_id=0x%x)", cond_id);
@@ -28,16 +28,16 @@ index f66146ae0..441f50353 100644
  
  	while (true)
  	{
-@@ -315,6 +320,8 @@ error_code sys_cond_signal_to(ppu_thread& ppu, u32 cond_id, u32 thread_id)
+@@ -316,6 +321,8 @@ error_code sys_cond_signal_to(ppu_thread& ppu, u32 cond_id, u32 thread_id)
  	ppu.state += cpu_flag::wait;
  
  	sys_cond.trace("sys_cond_signal_to(cond_id=0x%x, thread_id=0x%x)", cond_id, thread_id);
 +	if (freeze_tracer::cond_trace_armed())
 +		sys_cond.notice("[freeze-tracer] signal_to cond=0x%x by ppu=0x%x cia=0x%x target=0x%x", cond_id, ppu.id, ppu.cia, thread_id);
  
- 	while (true)
- 	{
-@@ -588,3 +595,18 @@ error_code sys_cond_wait(ppu_thread& ppu, u32 cond_id, u64 timeout)
+ 	const u64 start_time = get_system_time();
+ 	bool has_lower_prio_or_is_the_mutex_owner = false;
+@@ -615,3 +622,18 @@ error_code sys_cond_wait(ppu_thread& ppu, u32 cond_id, u64 timeout)
  
  	return not_an_error(ppu.gpr[3]);
  }
@@ -57,7 +57,7 @@ index f66146ae0..441f50353 100644
 +	});
 +}
 diff --git a/rpcs3/Emu/Cell/lv2/sys_net/lv2_socket_p2ps.cpp b/rpcs3/Emu/Cell/lv2/sys_net/lv2_socket_p2ps.cpp
-index 9e175c304..5c6e6d3ff 100644
+index 7570cbb9c..d49b0a6cb 100644
 --- a/rpcs3/Emu/Cell/lv2/sys_net/lv2_socket_p2ps.cpp
 +++ b/rpcs3/Emu/Cell/lv2/sys_net/lv2_socket_p2ps.cpp
 @@ -106,6 +106,9 @@ public:
